@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager, UserManager
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -39,7 +39,7 @@ class Recipes(models.Model):
     )
     ingredients = models.ManyToManyField(
         Ingredients,
-        through='RecipesIngredients'
+        through='RecipesIngredients',
     )
     tags = models.ManyToManyField(
         Tags,
@@ -93,18 +93,24 @@ class Follows(models.Model):
         related_name='following'
     )
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'author'],
-                name='unique_user_author'
-            )
-        ]
+    # class Meta:
+    #     constraints = [
+    #         models.UniqueConstraint(
+    #             fields=['user', 'author'],
+    #             name='unique_user_author'
+    #         )
+    #     ]
 
 
-class BuyList(models.Model):
-    recipes = models.ForeignKey(
+class ShoppingCart(models.Model):
+
+    recipe = models.ForeignKey(
         Recipes,
         on_delete=models.CASCADE,
-        related_name='buylist'
+        related_name='shopping_cart'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
     )

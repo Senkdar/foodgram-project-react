@@ -2,8 +2,10 @@ from django.urls import path, include
 from rest_framework import routers
 
 from .views import (
+        FavoriteListViewSet,
         IngredientViewSet,
         RecipesIngredientsViewSet,
+        ShoppingCartViewSet,
         UserViewSet,
         RecipeViewSet,
         TagViewSet,
@@ -19,21 +21,31 @@ router.register('recipes', RecipeViewSet)
 router.register('tags', TagViewSet)
 router.register('ingredients', IngredientViewSet)
 router.register('recipesingredients', RecipesIngredientsViewSet)
-router.register(
-    r'^users/(?P<user_id>\d+)/subscribe',
-    viewset=FollowsViewSet,
-    basename='subscribe'
-)
-router.register(
-    r'^recipes/(?P<recipe_id>\d+)/favorite',
-    viewset=FavoriteViewSet,
-    basename='favotite'
-)
-
 urlpatterns = [
     path(
         'users/subscribtions/',
         FollowListViewSet.as_view(),
     ),
+    path(
+        'users/<int:user_id>/subscribe/',
+        FollowsViewSet.as_view(),
+        name='subscribe'
+    ),
+    path(
+        'recipes/<int:recipe_id>/favorite/',
+        FavoriteViewSet.as_view(),
+        name='favorite'
+    ),
+    path(
+        'recipes/<int:recipe_id>/shopping_cart/',
+        ShoppingCartViewSet.as_view(),
+        name='shopping_cart'
+    ),
+    path(
+        'users/me/favorite/',
+        FavoriteListViewSet.as_view(),
+    ),
     path('', include(router.urls)),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
 ]
