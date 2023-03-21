@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'users',
+    'recipes',
     'rest_framework.authtoken',
     'djoser',
     'corsheaders',

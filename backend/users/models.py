@@ -11,12 +11,13 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=150)
     password = models.CharField(max_length=150)
 
-    def __str__(self):
-        return self.username
-
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+        ordering = ['-id']
+
+    def __str__(self):
+        return self.username
 
 
 class Follows(models.Model):
@@ -36,3 +37,4 @@ class Follows(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+        ordering = ['-id']

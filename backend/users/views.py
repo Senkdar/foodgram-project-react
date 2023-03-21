@@ -1,21 +1,21 @@
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, SAFE_METHODS
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework import status
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from users.models import (
-    User,
-    Follows,
-)
 from .serializers import (
     CreateUserSerializer,
-    MyUserSerializer,
     FollowSerializer,
     FollowListSerializer,
-    )
+    MyUserSerializer,
+)
+from users.models import (
+    Follows,
+    User,
+)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -55,12 +55,7 @@ class FollowsViewSet(APIView):
                 {'error': 'Вы не можете подписаться на себя'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        if Follows.objects.filter(user=user, author=author).exists():
-            return Response(
-                {'error': 'Вы уже подписаны на пользователя'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        Follows.objects.create(user=user, author=author)
+        Follows.objects.get_or_create(user=user, author=author)
         return Response(
             self.serializer_class(author, context={'request': request}).data,
             status=status.HTTP_201_CREATED

@@ -2,6 +2,8 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -9,32 +11,30 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from rest_framework import generics
-from rest_framework import status
-from api.filters import RecipesFilter
 
-from api.models import (
-    Ingredients,
-    ShoppingCart,
-    Recipes,
-    Tags,
-    RecipesIngredients,
-    Favorites,
-)
+from .permissions import AuthorOrReadOnlyPermission
+from api.filters import RecipesFilter
 from .serializers import (
+    FavoritesSerializer,
     IngredientSerializer,
-    RecipeCreateSerializer,
     RecipeSerializer,
+    RecipeCreateSerializer,
     ShoppingCartSerializer,
     TagsSerializer,
-    FavoritesSerializer,
-    )
-from .permissions import AuthorOrReadOnlyPermission
+)
+from recipes.models import (
+    Favorites,
+    Ingredients,
+    Recipes,
+    RecipesIngredients,
+    ShoppingCart,
+    Tags,
+)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для рецептов."""
-    queryset = Recipes.objects.all().order_by('-id')
+    queryset = Recipes.objects.all()
     serializer_class = RecipeSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipesFilter
@@ -86,13 +86,9 @@ class ShoppingCartViewSet(APIView):
     def post(self, request, *args, **kwargs):
         user = request.user
         recipe = get_object_or_404(Recipes, id=self.kwargs.get('recipe_id'))
-
-        if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
-            return Response(
-                {'error': 'Этот рецепт уже есть в списке покупок'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        shopping_cart = ShoppingCart.objects.create(user=user, recipe=recipe)
+        shopping_cart = ShoppingCart.objects.get_or_create(
+            user=user, recipe=recipe
+        )
         return Response(
             FavoritesSerializer(shopping_cart).data,
             status=status.HTTP_201_CREATED
@@ -123,13 +119,7 @@ class FavoriteViewSet(APIView):
     def post(self, request, *args, **kwargs):
         user = request.user
         recipe = get_object_or_404(Recipes, id=self.kwargs.get('recipe_id'))
-
-        if Favorites.objects.filter(user=user, recipe=recipe).exists():
-            return Response(
-                {'error': 'Этот рецепт уже есть в списке избранного'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        favorite = Favorites.objects.create(user=user, recipe=recipe)
+        favorite = Favorites.objects.get_or_create(user=user, recipe=recipe)
         return Response(
             FavoritesSerializer(favorite).data,
             status=status.HTTP_201_CREATED

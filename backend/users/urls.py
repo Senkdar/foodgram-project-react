@@ -3,8 +3,8 @@ from rest_framework import routers
 
 from users.views import (
         CustomUserViewSet,
-        FollowsViewSet,
         FollowListViewSet,
+        FollowsViewSet,
     )
 
 router = routers.DefaultRouter()

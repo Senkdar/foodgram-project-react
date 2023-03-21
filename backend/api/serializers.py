@@ -1,17 +1,16 @@
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
-import webcolors
 from rest_framework import serializers
+import webcolors
 
 from users.serializers import MyUserSerializer
-
-from .models import (
+from recipes.models import (
+        Favorites,
         Ingredients,
-        ShoppingCart,
         Recipes,
         RecipesIngredients,
+        ShoppingCart,
         Tags,
-        Favorites,
     )
 
 
@@ -118,14 +117,16 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
         recipe = Recipes.objects.create(**validated_data)
+        ingredients_list = []
         for ingredient_data in ingredients_data:
             ingredient_id = ingredient_data.get('id')
             ingredient = get_object_or_404(Ingredients, name=ingredient_id)
-            RecipesIngredients.objects.create(
+            ingredients_list.append(RecipesIngredients(
                 recipe=recipe,
                 ingredient=ingredient,
                 amount=ingredient_data['amount']
-            )
+            ))
+        RecipesIngredients.objects.bulk_create(ingredients_list)
         for tag in tags_data:
             recipe.tags.add(tag)
         return recipe

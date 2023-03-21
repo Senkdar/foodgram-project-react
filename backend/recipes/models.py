@@ -1,4 +1,7 @@
-from django.core.validators import MinValueValidator
+from django.core.validators import (
+    MaxValueValidator,
+    MinValueValidator
+)
 from django.db import models
 
 from users.models import User
@@ -11,12 +14,13 @@ class Tags(models.Model):
     color = models.CharField(max_length=7, unique=True)
     slug = models.SlugField(max_length=200, unique=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
+        ordering = ['-id']
+
+    def __str__(self):
+        return self.name
 
 
 class Ingredients(models.Model):
@@ -25,12 +29,13 @@ class Ingredients(models.Model):
     name = models.CharField(max_length=200)
     measurement_unit = models.CharField(max_length=200)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        ordering = ['-id']
+
+    def __str__(self):
+        return self.name
 
 
 class Recipes(models.Model):
@@ -52,17 +57,22 @@ class Recipes(models.Model):
     image = models.ImageField(blank=True)
     name = models.CharField(max_length=200)
     description = models.TextField()
-    cooking_time = models.SmallIntegerField(
-        validators=[MinValueValidator(
-            1, 'cooking time should be more than 1 minute')]
+    cooking_time = models.PositiveSmallIntegerField(
+        validators=[
+            MinValueValidator(
+                1, 'cooking time should be more than 1 minute'),
+            MaxValueValidator(
+                600, 'cooking time cannot be more than 10 hours')
+            ]
         )
-
-    def __str__(self):
-        return self.name
 
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        ordering = ['-id']
+
+    def __str__(self):
+        return self.name
 
 
 class RecipesTags(models.Model):
@@ -85,11 +95,19 @@ class RecipesIngredients(models.Model):
         related_name='amount',
         on_delete=models.CASCADE
     )
-    amount = models.FloatField()
+    amount = models.PositiveSmallIntegerField(
+        validators=[
+            MinValueValidator(
+                0.1, 'Добавьте количество ингредиента'),
+            MaxValueValidator(
+                10000, 'количество ингредиентов не может быть болльше 10000')
+            ]
+        )
 
     class Meta:
         verbose_name = 'Количество ингредиента'
         verbose_name_plural = 'Количество ингредиентов'
+        ordering = ['-id']
 
 
 class Favorites(models.Model):
@@ -109,6 +127,7 @@ class Favorites(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
+        ordering = ['-id']
 
 
 class ShoppingCart(models.Model):
@@ -128,3 +147,4 @@ class ShoppingCart(models.Model):
     class Meta:
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
+        ordering = ['-id']
