@@ -3,7 +3,8 @@ from django.db import models
 
 
 class User(AbstractUser):
-    """Модель пользователя"""
+    """Модель пользователя."""
+
     email = models.EmailField(max_length=254, unique=True)
     username = models.CharField(max_length=150, unique=True)
     first_name = models.CharField(max_length=150)
@@ -19,7 +20,8 @@ class User(AbstractUser):
 
 
 class Follows(models.Model):
-    """Модель подписок"""
+    """Модель подписок."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -34,11 +36,3 @@ class Follows(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-
-    # class Meta:
-    #     constraints = [
-    #         models.UniqueConstraint(
-    #             fields=['user', 'author'],
-    #             name='unique_user_author'
-    #         )
-    #     ]

@@ -4,7 +4,6 @@ from rest_framework import routers
 from .views import (
         FavoriteListViewSet,
         IngredientViewSet,
-        RecipesIngredientsViewSet,
         ShoppingCartViewSet,
         RecipeViewSet,
         TagViewSet,
@@ -17,7 +16,6 @@ router = routers.DefaultRouter()
 router.register('recipes', RecipeViewSet)
 router.register('tags', TagViewSet)
 router.register('ingredients', IngredientViewSet)
-router.register('recipesingredients', RecipesIngredientsViewSet)
 urlpatterns = [
     path(
         'recipes/<int:recipe_id>/favorite/',

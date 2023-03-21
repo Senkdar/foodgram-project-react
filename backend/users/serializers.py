@@ -1,14 +1,11 @@
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from rest_framework import serializers
 
-
-from .models import (
-        User,
-        Follows,
-    )
+from .models import User, Follows
 
 
 class CreateUserSerializer(UserCreateSerializer):
+    """Сериализатор для создания пользователя."""
 
     class Meta:
         model = User
@@ -22,6 +19,7 @@ class CreateUserSerializer(UserCreateSerializer):
 
 
 class MyUserSerializer(UserSerializer):
+    """Сериализатор для отображения пользователя."""
 
     is_subscribed = serializers.SerializerMethodField()
 
@@ -47,6 +45,7 @@ class MyUserSerializer(UserSerializer):
 
 
 class FollowSerializer(MyUserSerializer):
+    """Сериализатор для создания подписок."""
 
     recipes = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.SerializerMethodField(read_only=True)
@@ -70,6 +69,7 @@ class FollowSerializer(MyUserSerializer):
 
 
 class FollowListSerializer(MyUserSerializer):
+    """Сериализатор для отображения подписок."""
 
     class Meta:
 

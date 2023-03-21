@@ -2,7 +2,10 @@ from rest_framework import permissions
 
 
 class AuthorOrReadOnlyPermission(permissions.BasePermission):
-
+    """Ограничение доступа для неавторизованных
+    пользователей, а также запрет на изменение контента
+    других пользователей.
+    """
     def has_permission(self, request, view):
         return (
                 request.method in permissions.SAFE_METHODS

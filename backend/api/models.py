@@ -5,7 +5,8 @@ from users.models import User
 
 
 class Tags(models.Model):
-    """Модель тегов"""
+    """Модель тегов."""
+
     name = models.CharField(max_length=200)
     color = models.CharField(max_length=7, unique=True)
     slug = models.SlugField(max_length=200, unique=True)
@@ -19,7 +20,8 @@ class Tags(models.Model):
 
 
 class Ingredients(models.Model):
-    """Модель ингредиентов"""
+    """Модель ингредиентов."""
+
     name = models.CharField(max_length=200)
     measurement_unit = models.CharField(max_length=200)
 
@@ -32,7 +34,8 @@ class Ingredients(models.Model):
 
 
 class Recipes(models.Model):
-    """Модель рецептов"""
+    """Модель рецептов."""
+
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -63,13 +66,15 @@ class Recipes(models.Model):
 
 
 class RecipesTags(models.Model):
-    """Промежуточная модель для связи рецептов и тегов"""
+    """Промежуточная модель для связи рецептов и тегов."""
+
     recipe = models.ForeignKey(Recipes, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tags, on_delete=models.CASCADE)
 
 
 class RecipesIngredients(models.Model):
-    """Промежуточная модель для связи рецептов и количества ингредиентов"""
+    """Промежуточная модель для связи рецептов и количества ингредиентов."""
+
     recipe = models.ForeignKey(
         Recipes,
         related_name='recipe_ingredients',
@@ -88,7 +93,8 @@ class RecipesIngredients(models.Model):
 
 
 class Favorites(models.Model):
-    """Модель избранных рецептов"""
+    """Модель избранных рецептов."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -106,7 +112,8 @@ class Favorites(models.Model):
 
 
 class ShoppingCart(models.Model):
-    """Модель списка покупков"""
+    """Модель списка покупков."""
+
     recipe = models.ForeignKey(
         Recipes,
         on_delete=models.CASCADE,

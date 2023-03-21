@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from drf_extra_fields.fields import Base64ImageField
 import webcolors
 from rest_framework import serializers
 
@@ -15,6 +16,7 @@ from .models import (
 
 
 class Hex2NameColor(serializers.Field):
+    """Настройка для выбора цвета тега."""
 
     def to_representation(self, value):
         return value
@@ -28,6 +30,7 @@ class Hex2NameColor(serializers.Field):
 
 
 class TagsSerializer(serializers.ModelSerializer):
+    """Сериализатор для тегов."""
 
     color = Hex2NameColor()
 
@@ -36,19 +39,17 @@ class TagsSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'color', 'slug',)
 
 
-class TagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tags
-        fields = '__all__'
-
-
 class IngredientSerializer(serializers.ModelSerializer):
+    """Сериализатор для ингредиентов."""
+
     class Meta:
         model = Ingredients
         fields = '__all__'
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
+    """Сериализатор для связи рецепта и ингредиентов."""
+
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredients.objects.all())
     name = serializers.StringRelatedField(source='ingredient.name')
     measurement_unit = serializers.StringRelatedField(
@@ -62,10 +63,14 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для отображения рецепта."""
 
     tags = TagsSerializer(many=True, read_only=True)
     author = MyUserSerializer(read_only=True)
-    ingredients = RecipeIngredientSerializer(many=True, source='recipe_ingredients')
+    ingredients = RecipeIngredientSerializer(
+        many=True,
+        source='recipe_ingredients'
+    )
     is_in_favorite = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
 
@@ -92,6 +97,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания рецепта."""
 
     author = MyUserSerializer(read_only=True)
     ingredients = RecipeIngredientSerializer(many=True)
@@ -99,6 +105,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         many=True,
         queryset=Tags.objects.all()
     )
+    image = Base64ImageField()
 
     class Meta:
         model = Recipes
@@ -141,6 +148,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для отображения рецепта в полях других моделей."""
 
     class Meta:
         model = Recipes
@@ -153,6 +161,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 
 
 class FavoritesSerializer(serializers.ModelSerializer):
+    """Сериализатор для списка избранного."""
 
     recipe = ShortRecipeSerializer(read_only=True)
 
@@ -166,6 +175,7 @@ class FavoritesSerializer(serializers.ModelSerializer):
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
+    """Сериализатор для списка покупок."""
 
     class Meta:
         model = ShoppingCart

@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -25,16 +25,15 @@ from .serializers import (
     IngredientSerializer,
     RecipeCreateSerializer,
     RecipeSerializer,
-    RecipeIngredientSerializer,
     ShoppingCartSerializer,
-    TagSerializer,
+    TagsSerializer,
     FavoritesSerializer,
     )
 from .permissions import AuthorOrReadOnlyPermission
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-
+    """Вьюсет для рецептов."""
     queryset = Recipes.objects.all().order_by('-id')
     serializer_class = RecipeSerializer
     filter_backends = [DjangoFilterBackend]
@@ -72,7 +71,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class FavoriteListViewSet(generics.ListAPIView):
-
+    """Вьюсет для списка избранного."""
     serializer_class = FavoritesSerializer
 
     def get_queryset(self):
@@ -81,7 +80,7 @@ class FavoriteListViewSet(generics.ListAPIView):
 
 
 class ShoppingCartViewSet(APIView):
-
+    """Вью для списка покупок."""
     serializer_class = ShoppingCartSerializer
 
     def post(self, request, *args, **kwargs):
@@ -117,7 +116,7 @@ class ShoppingCartViewSet(APIView):
 
 
 class FavoriteViewSet(APIView):
-
+    """Вью для создания/удаления избранного."""
     serializer_class = FavoritesSerializer
     permission_classes = [AuthorOrReadOnlyPermission]
 
@@ -154,23 +153,17 @@ class FavoriteViewSet(APIView):
 
 
 class TagViewSet(ReadOnlyModelViewSet):
-
-    serializer_class = TagSerializer
+    """Вьюсет для тегов."""
+    serializer_class = TagsSerializer
     queryset = Tags.objects.all()
     permission_classes = (AllowAny,)
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
-
+    """Вьюсет для ингредиентов."""
     serializer_class = IngredientSerializer
     queryset = Ingredients.objects.all()
     permission_classes = (AllowAny,)
     SearchFilter.search_param = 'name'
     filter_backends = (SearchFilter,)
     search_fields = ('^name',)
-
-
-class RecipesIngredientsViewSet(viewsets.ModelViewSet):
-
-    serializer_class = RecipeIngredientSerializer
-    queryset = RecipesIngredients.objects.all()

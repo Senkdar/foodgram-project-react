@@ -19,6 +19,7 @@ from .serializers import (
 
 
 class CustomUserViewSet(UserViewSet):
+    """Вьюсет для пользователей."""
 
     queryset = User.objects.all()
     serializer_class = MyUserSerializer
@@ -31,6 +32,7 @@ class CustomUserViewSet(UserViewSet):
 
 
 class FollowListViewSet(generics.ListAPIView):
+    """Вью для списка подписок."""
 
     serializer_class = FollowListSerializer
 
@@ -40,6 +42,7 @@ class FollowListViewSet(generics.ListAPIView):
 
 
 class FollowsViewSet(APIView):
+    """Вью для создания/удаления подписок."""
 
     serializer_class = FollowSerializer
 
