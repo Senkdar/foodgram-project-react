@@ -50,21 +50,31 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def download_shopping_cart(self, request):
+        ingredients_list = {}
         ingredients = RecipesIngredients.objects.filter(
             recipe__shopping_cart__user=request.user).values(
                 'ingredient__name', 'ingredient__measurement_unit').annotate(
                 Sum('amount')
             )
-        text_in_file = 'Список покупок: \n'
         for item in ingredients:
+            name = item['ingredient__name']
+            if name not in ingredients_list:
+                ingredients_list[name] = {
+                    'measurement_unit': item['ingredient__measurement_unit'],
+                    'amount': item['amount__sum']
+                }
+            else:
+                ingredients_list[name]['amount'] += item['amount__sum']
+        text_in_file = 'Список покупок: \n'
+        for item in ingredients_list:
             text_in_file += (
-                f"{item['ingredient__name']} — "
-                f"{item['amount__sum']} "
-                f"{item['ingredient__measurement_unit']} \n"
+                f"{item} — "
+                f"{ingredients_list[item]['amount']} "
+                f"{ingredients_list[item]['measurement_unit']}\n"
             )
         response = HttpResponse(text_in_file, content_type='text/plain')
         response['Content-Disposition'] = (
-            'attachment; filename="shopping_list.txt"'
+            'attachment; filename="shopping_cart.txt"'
         )
 
         return response

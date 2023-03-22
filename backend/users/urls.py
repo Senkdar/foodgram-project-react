@@ -12,7 +12,7 @@ router.register('users', CustomUserViewSet, basename='users')
 
 urlpatterns = [
     path(
-        'users/subscribtions/',
+        'users/subscriptions/',
         FollowListViewSet.as_view(),
     ),
     path(

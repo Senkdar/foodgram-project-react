@@ -170,10 +170,6 @@ class FavoritesSerializer(serializers.ModelSerializer):
         model = Favorites
         fields = ('recipe',)
 
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        return ret['recipe']
-
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
     """Сериализатор для списка покупок."""
