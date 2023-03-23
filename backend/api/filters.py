@@ -10,7 +10,7 @@ class RecipesFilter(FilterSet):
         to_field_name='slug',
     )
     is_favorited = filters.BooleanFilter(
-        method='get_is_in_favorite'
+        method='get_is_favorited'
     )
     is_in_shopping_cart = filters.BooleanFilter(
         method='get_is_in_shopping_cart',
@@ -20,7 +20,7 @@ class RecipesFilter(FilterSet):
         model = Recipes
         fields = ('tags',)
 
-    def get_is_in_favorite(self, queryset, name, value):
+    def get_is_favorited(self, queryset, name, value):
         user = self.request.user
         if value and user.is_authenticated:
             return queryset.filter(favorites__user=user)

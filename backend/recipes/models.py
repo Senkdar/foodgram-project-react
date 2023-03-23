@@ -17,7 +17,6 @@ class Tags(models.Model):
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
-        ordering = ['-id']
 
     def __str__(self):
         return self.name
@@ -32,7 +31,7 @@ class Ingredients(models.Model):
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        ordering = ['-id']
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -56,7 +55,7 @@ class Recipes(models.Model):
     )
     image = models.ImageField(blank=True)
     name = models.CharField(max_length=200)
-    description = models.TextField()
+    text = models.TextField()
     cooking_time = models.PositiveSmallIntegerField(
         validators=[
             MinValueValidator(

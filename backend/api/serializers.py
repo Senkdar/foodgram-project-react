@@ -12,6 +12,11 @@ from recipes.models import (
         ShoppingCart,
         Tags,
     )
+import logging
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
 
 class Hex2NameColor(serializers.Field):
@@ -31,11 +36,12 @@ class Hex2NameColor(serializers.Field):
 class TagsSerializer(serializers.ModelSerializer):
     """Сериализатор для тегов."""
 
-    color = Hex2NameColor()
+    # color = Hex2NameColor()
 
     class Meta:
         model = Tags
         fields = ('id', 'name', 'color', 'slug',)
+        read_only_fields = '__all__',
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -70,7 +76,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         many=True,
         source='recipe_ingredients'
     )
-    is_in_favorite = serializers.SerializerMethodField(read_only=True)
+    is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -81,7 +87,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         queryset = RecipesIngredients.objects.filter(recipe=obj)
         return RecipeIngredientSerializer(queryset, many=True).data
 
-    def get_is_in_favorite(self, obj):
+    def get_is_favorited(self, obj):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
@@ -110,23 +116,21 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         model = Recipes
         fields = (
             'id', 'ingredients', 'tags', 'image', 'name',
-            'description', 'cooking_time', 'author'
+            'text', 'cooking_time', 'author'
         )
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
         recipe = Recipes.objects.create(**validated_data)
-        ingredients_list = []
         for ingredient_data in ingredients_data:
             ingredient_id = ingredient_data.get('id')
             ingredient = get_object_or_404(Ingredients, name=ingredient_id)
-            ingredients_list.append(RecipesIngredients(
+        RecipesIngredients.objects.bulk_create([RecipesIngredients(
                 recipe=recipe,
                 ingredient=ingredient,
                 amount=ingredient_data['amount']
-            ))
-        RecipesIngredients.objects.bulk_create(ingredients_list)
+            )])
         for tag in tags_data:
             recipe.tags.add(tag)
         return recipe
@@ -137,15 +141,24 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return RecipeSerializer(instance, context=context).data
 
     def update(self, instance, validated_data):
-        if 'ingredients' in validated_data:
-            ingredients = validated_data.pop('ingredients')
-            instance.ingredients.clear()
-            self.create_ingredients(ingredients, instance)
-        if 'tags' in validated_data:
-            instance.tags.set(
-                validated_data.pop('tags'))
-        return super().update(
-            instance, validated_data)
+        ingredients_data = validated_data.pop('ingredients', None)
+        tags_data = validated_data.pop('tags', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if tags_data:
+            instance.tags.set(tags_data)
+        if ingredients_data:
+            RecipesIngredients.objects.filter(recipe=instance).delete()
+            for ingredient_data in ingredients_data:
+                ingredient_id = ingredient_data.get('id')
+                ingredient = get_object_or_404(Ingredients, name=ingredient_id)
+                RecipesIngredients.objects.create(
+                    recipe=instance,
+                    ingredient=ingredient,
+                    amount=ingredient_data['amount']
+                )
+        instance.save()
+        return instance
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):

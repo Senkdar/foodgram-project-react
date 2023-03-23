@@ -14,6 +14,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from .permissions import AuthorOrReadOnlyPermission
 from api.filters import RecipesFilter
+from .pagination import CustomPagination
 from .serializers import (
     FavoritesSerializer,
     IngredientSerializer,
@@ -35,9 +36,9 @@ from recipes.models import (
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для рецептов."""
     queryset = Recipes.objects.all()
-    serializer_class = RecipeSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipesFilter
+    pagination_class = CustomPagination
     permission_classes = [AuthorOrReadOnlyPermission, ]
 
     def perform_create(self, serializer):
@@ -83,6 +84,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class FavoriteListViewSet(generics.ListAPIView):
     """Вьюсет для списка избранного."""
     serializer_class = FavoritesSerializer
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         new_queryset = Favorites.objects.filter(user=self.request.user)

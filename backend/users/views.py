@@ -6,10 +6,10 @@ from rest_framework.permissions import SAFE_METHODS, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.pagination import CustomPagination
 from .serializers import (
     CreateUserSerializer,
     FollowSerializer,
-    FollowListSerializer,
     MyUserSerializer,
 )
 from users.models import (
@@ -34,7 +34,8 @@ class CustomUserViewSet(UserViewSet):
 class FollowListViewSet(generics.ListAPIView):
     """Вью для списка подписок."""
 
-    serializer_class = FollowListSerializer
+    serializer_class = FollowSerializer
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         new_queryset = User.objects.filter(following__user=self.request.user)
@@ -45,6 +46,7 @@ class FollowsViewSet(APIView):
     """Вью для создания/удаления подписок."""
 
     serializer_class = FollowSerializer
+    pagination_class = CustomPagination
 
     def post(self, request, *args, **kwargs):
         user = request.user

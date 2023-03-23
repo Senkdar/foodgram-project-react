@@ -45,7 +45,7 @@ class MyUserSerializer(UserSerializer):
 
 
 class FollowSerializer(MyUserSerializer):
-    """Сериализатор для создания подписок."""
+    """Сериализатор для подписок."""
 
     recipes = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.SerializerMethodField(read_only=True)
@@ -66,19 +66,3 @@ class FollowSerializer(MyUserSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
-
-
-class FollowListSerializer(MyUserSerializer):
-    """Сериализатор для отображения подписок."""
-
-    class Meta:
-
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed'
-        )
