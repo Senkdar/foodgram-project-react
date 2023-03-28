@@ -36,8 +36,6 @@ class Hex2NameColor(serializers.Field):
 class TagsSerializer(serializers.ModelSerializer):
     """Сериализатор для тегов."""
 
-    # color = Hex2NameColor()
-
     class Meta:
         model = Tags
         fields = ('id', 'name', 'color', 'slug',)
