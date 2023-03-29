@@ -12,11 +12,6 @@ from recipes.models import (
         ShoppingCart,
         Tags,
     )
-import logging
-logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
 
 
 class Hex2NameColor(serializers.Field):
@@ -35,6 +30,8 @@ class Hex2NameColor(serializers.Field):
 
 class TagsSerializer(serializers.ModelSerializer):
     """Сериализатор для тегов."""
+
+    color = Hex2NameColor()
 
     class Meta:
         model = Tags
@@ -121,14 +118,16 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
         recipe = Recipes.objects.create(**validated_data)
+        ingredients_list = []
         for ingredient_data in ingredients_data:
             ingredient_id = ingredient_data.get('id')
             ingredient = get_object_or_404(Ingredients, name=ingredient_id)
-        RecipesIngredients.objects.bulk_create([RecipesIngredients(
+            ingredients_list.append(RecipesIngredients(
                 recipe=recipe,
                 ingredient=ingredient,
                 amount=ingredient_data['amount']
-            )])
+            ))
+        RecipesIngredients.objects.bulk_create(ingredients_list)
         for tag in tags_data:
             recipe.tags.add(tag)
         return recipe
