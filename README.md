@@ -26,15 +26,17 @@ docker-compose up -d
 docker-compose exec backend python manage.py migrate  
 docker-compose exec backend python manage.py collectstatic --noinput
 ```
-
 4. Создать суперпользователя:
 ```
 docker-compose exec backend python manage.py createsuperuser
 ```
-### Админ зона
+### Админ зона:
 логин: admin  
 пароль: admin  
 email: admin@m.ru  
+### Тестовый пользователь:
+email: tester@mail.ru  
+пароль: passfortest  
 
 ## API Reference
 
