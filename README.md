@@ -7,7 +7,7 @@
 - Django REST Framework
 - PostgreSQL
 - Docker
-- Github Actions
+- Github Actions 
 ## Для запуска проекта:  
 1. Клонировать репозиторий и перейти в него в командной строке:
 
